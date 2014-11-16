@@ -1,20 +1,16 @@
----
-title: 'Reproducible Research: Peer Assessment 1'
-output:
-  html_document:
-    keep_md: yes
-  pdf_document: default
----
+# Reproducible Research: Peer Assessment 1
 
 ## Loading and preprocessing the data
 Setting working directory.
-```{r setting_wd}
+
+```r
 wd <- "C:/Users/Svetlana/Dropbox/rWorkingDirectory/5_Reproducible_Research/RepData_PeerAssessment1"
 setwd(wd)
 ```
 
 Downloading file, unzipping and opening it with ```read.csv```. Cleaning environment from unnesessary variables.
-```{r file_download}
+
+```r
 link <- "http://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
 temp <- tempfile()
 download.file(link, temp)
@@ -29,7 +25,8 @@ rm(temp)
 ## What is mean total number of steps taken per day?
 
 Subsetting original data, getting rid of missing factor values.
-```{r q1_subsetting}
+
+```r
 q1_data <- data[!is.na(data$steps), 1:2]
 q1_data$date <- factor(q1_data$date)
 ```
@@ -37,7 +34,8 @@ q1_data$date <- factor(q1_data$date)
 #### Calculating total number of steps
 
 Splitting by ```date``` column, calculating means, creating data frame. Cleaning environment.
-```{r q1_total}
+
+```r
 s <- split(q1_data, q1_data$date)
 q1_total <- lapply(s, function(x) sum(x[, "steps"]))
 q1_matrix <- data.frame(date = names(q1_total),
@@ -50,13 +48,26 @@ rm(q1_total)
 
 #### Calculating mean and median number of steps per day
 Mean and median total number of steps taken per day.
-```{r q1_mean_median}
+
+```r
 mean(q1_matrix$total_steps)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 median(q1_matrix$total_steps)
 ```
 
+```
+## [1] 10765
+```
+
 #### Plotting histogram
-```{r q1_plotting, fig.width = 8, fig.height = 5}
+
+```r
 par(mfrow=c(1,2))
 hist(q1_matrix$total_steps,
      main = "Total Number of Steps",
@@ -72,15 +83,19 @@ text(6000,26, labels = 'median', col = "blue")
 text(6000,24, labels = median(q1_matrix$total_steps), col = "blue")
 ```
 
+![](PA1_template_files/figure-html/q1_plotting-1.png) 
+
 ## What is the average daily activity pattern?
 
 Subsetting original data, reformatting ```interval``` values.
-```{r q2_subsetting}
+
+```r
 q2_data <- data[!is.na(data$steps), c(1,3)]
 q2_data$interval <- factor(unlist(q2_data$interval))
 ```
 Splitting by ```interval``` column, calculating means, creating data frame. Cleaning environment.
-```{r q2_calculating}
+
+```r
 s <- split(q2_data, q2_data$interval)
 q2_mean <- lapply(s, function(x) mean(x[, "steps"]))
 q2_matrix <- data.frame(time_interval = names(q2_mean),
@@ -93,13 +108,20 @@ rm(q2_mean)
 
 #### Time interval with maximum average number of steps
 
-```{r q2_max_steps_time_interval}
+
+```r
 q2_matrix[q2_matrix$mean_steps == max(q2_matrix$mean_steps),]
+```
+
+```
+##     time_interval mean_steps
+## 835           835   206.1698
 ```
 
 #### Plotting
 
-```{r q2_plotting, fig.width = 8, fig.height = 5}
+
+```r
 par(mfrow=c(1,1))
 plot(row.names(q2_matrix),
      q2_matrix$mean_steps,
@@ -115,7 +137,11 @@ abline(v = q2_max_x,
        lwd = 1)
 text(1150,200, labels = 'max steps interval', col = "red")
 text(1150,185, labels = q2_max_x, col = "red")
+```
 
+![](PA1_template_files/figure-html/q2_plotting-1.png) 
+
+```r
 rm(q2_max_x)
 ```
 
@@ -123,8 +149,13 @@ rm(q2_max_x)
 ## Imputing missing values
 #### Total number of missing values in the dataset 
 The only missing values in the dataset are in the ```steps``` column.
-```{r q3_missing_values}
+
+```r
 c(sum(is.na(data$steps)), sum(is.na(data$date)), sum(is.na(data$interval)))
+```
+
+```
+## [1] 2304    0    0
 ```
 
 #### Imputing strategy
@@ -134,7 +165,8 @@ strategy for filling in all of the missing values in the dataset.
 #### Constructing new dataset
 
 Mean values for 5-minute interval are extracted from ```q2_matrix``` which was constructed previously.
-```{r q3_new_dataset}
+
+```r
 q3_data <- data
 for (i in 1:dim(q3_data)[1]){
   if (is.na(q3_data[i,]$steps)){
@@ -148,7 +180,8 @@ rm(i)
 
 To calculate total number of steps splitting by ```date``` column, calculating means, creating data frame. Cleaning 
 environment.
-```{r q3_calculating}
+
+```r
 q3_data$date <- factor(q3_data$date)
 s <- split(q3_data, q3_data$date)
 q3_total <- lapply(s, function(x) sum(x[, "steps"]))
@@ -161,13 +194,26 @@ rm(q3_total)
 ```
 
 #### Mean and median total number of steps taken per day.
-```{r q3_mean_median}
+
+```r
 mean(q3_matrix$total_steps)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 median(q3_matrix$total_steps)
 ```
 
+```
+## [1] 10766.19
+```
+
 #### Plotting histogram
-```{r q3_plotting, fig.width = 8, fig.height = 8}
+
+```r
 par(mfrow=c(2,2))
 
 hist(q1_matrix$total_steps,
@@ -203,17 +249,25 @@ text(6000,26, labels = 'median', col = "blue")
 text(6000,20, labels = round(median(q3_matrix$total_steps),2), col = "blue")
 ```
 
+![](PA1_template_files/figure-html/q3_plotting-1.png) 
+
 ## Are there differences in activity patterns between weekdays and weekends?
 
 Setting English locale to have names of weekdays in English
-```{r q4_locale}
+
+```r
 Sys.setlocale("LC_TIME", "English")
+```
+
+```
+## [1] "English_United States.1252"
 ```
 
 #### Creating new factor variable
 
 Calculating the new ```weekday``` variable. Setting "Saturday" and "Sunday" dates to "weekend".
-```{r q4_new factor}
+
+```r
 q4_data <- q3_data
 q4_data$date <- as.Date(q4_data$date)
 q4_data$weekday <- "weekday"
@@ -221,7 +275,8 @@ q4_data[(weekdays(q4_data$date) == "Saturday")|(weekdays(q4_data$date) == "Sunda
 ```
 
 Subsetting original data, reformatting ```interval``` values.
-```{r q4_subsetting}
+
+```r
 q4_data_weekday <- q4_data[q4_data$weekday == "weekday", c(1,3)]
 q4_data_weekend <- q4_data[q4_data$weekday == "weekend", c(1,3)]
 q4_data_weekday$interval <- factor(unlist(q4_data_weekday$interval))
@@ -229,7 +284,8 @@ q4_data_weekend$interval <- factor(unlist(q4_data_weekend$interval))
 ```
 
 Splitting by ```interval``` column, calculating means, creating data frame. Cleaning environment.
-```{r q4_calculating}
+
+```r
 s <- split(q4_data_weekday, q4_data_weekday$interval)
 q4_data_weekday_mean <- lapply(s, function(x) mean(x[, "steps"]))
 q4_data_weekday_matrix <- data.frame(time_interval = names(q4_data_weekday_mean),
@@ -250,7 +306,8 @@ rm(q4_data_weekend_mean)
 ```
 
 #### Plotting
-```{r q4_plotting, fig.width = 8, fig.height = 8}
+
+```r
 par(mfrow=c(2,1))
 plot(row.names(q4_data_weekday_matrix),
      q4_data_weekday_matrix$mean_steps,
@@ -269,3 +326,5 @@ plot(row.names(q4_data_weekend_matrix),
      ylab = "Number of Steps",
      ylim = c(0, 230))
 ```
+
+![](PA1_template_files/figure-html/q4_plotting-1.png) 
